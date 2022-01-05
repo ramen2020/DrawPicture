@@ -93,33 +93,34 @@ struct PencilKitView: View {
     @State private var canvasView = PKCanvasView()
     
     var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Button("Clear") {
-                    canvasView.drawing = PKDrawing()
-                }
-                .padding()
-                .border(.white, width: 3)
-                
-                Button("return") {
-                    undoManager?.undo()
-                }
-                .padding()
-                .border(.white, width: 3)
-                
-                Button("next") {
-                    undoManager?.redo()
-                }
-                .padding()
-                .border(.white, width: 3)
-            }
-            .frame(maxWidth:.infinity)
-            .padding()
-            .foregroundColor(Color.white)
-            .background(Color.black)
-            
+        VStack() {            
             PencilUIKit(canvasView: $canvasView)
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitle("PencilKit")
+        .navigationBarItems(trailing:
+                                HStack(spacing: 5) {
+            Button(action: {
+                canvasView.drawing = PKDrawing()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.title3)
+            }
+            
+            Button(action: {
+                undoManager?.undo()
+            }) {
+                Image(systemName: "chevron.backward")
+                    .font(.title3)
+            }
+            
+            Button(action: {
+                undoManager?.redo()
+            }) {
+                Image(systemName: "chevron.forward")
+                    .font(.title3)
+            }
+        })
     }
 }
 
