@@ -15,6 +15,9 @@ struct ContentView: View {
                 NavigationLink(destination: CustomPaint()) {
                     Text("CustomPaint")
                 }
+                NavigationLink(destination: PencilKitView()) {
+                    Text("PencilKitView")
+                }
             }
         }
     }
@@ -82,5 +85,59 @@ struct PaintLine: Identifiable {
         let line = PaintLine(id: "\(PaintLine.idCount)", points: points)
         PaintLine.idCount += 1
         return line
+    }
+}
+
+struct PencilKitView: View {
+    @Environment(\.undoManager) private var undoManager
+    @State private var canvasView = PKCanvasView()
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Button("Clear") {
+                    canvasView.drawing = PKDrawing()
+                }
+                .padding()
+                .border(.white, width: 3)
+                
+                Button("return") {
+                    undoManager?.undo()
+                }
+                .padding()
+                .border(.white, width: 3)
+                
+                Button("next") {
+                    undoManager?.redo()
+                }
+                .padding()
+                .border(.white, width: 3)
+            }
+            .frame(maxWidth:.infinity)
+            .padding()
+            .foregroundColor(Color.white)
+            .background(Color.black)
+            
+            PencilUIKit(canvasView: $canvasView)
+        }
+    }
+}
+
+struct PencilUIKit: UIViewRepresentable {
+    @Binding var canvasView: PKCanvasView
+    let picker = PKToolPicker.init()
+    
+    func makeUIView(context: Context) -> PKCanvasView {
+        self.canvasView.tool = PKInkingTool(.pen, color: .red, width: 15)
+        self.canvasView.becomeFirstResponder()
+        return canvasView
+    }
+    
+    func updateUIView(_ uiView: PKCanvasView, context: Context) {
+        picker.addObserver(canvasView)
+        picker.setVisible(true, forFirstResponder: uiView)
+        DispatchQueue.main.async {
+            uiView.becomeFirstResponder()
+        }
     }
 }
